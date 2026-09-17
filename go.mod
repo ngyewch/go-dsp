@@ -6,6 +6,7 @@ require (
 	github.com/dim13/colormap v1.1.0
 	github.com/jwalton/go-supportscolor v1.2.0
 	github.com/madelynnblue/go-dsp v1.0.0
+	github.com/mewkiz/flac v1.0.14
 	github.com/ngyewch/go-genericbuffer v0.1.0
 	github.com/ngyewch/go-pcm v0.3.0
 	github.com/phsym/console-slog v0.3.1
@@ -22,6 +23,9 @@ require (
 	git.sr.ht/~sbinet/gg v0.8.0 // indirect
 	github.com/ajstarks/svgo v0.0.0-20211024235047-1546f124cd8b // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
+	github.com/icza/bitio v1.1.0 // indirect
+	github.com/mewkiz/pkg v0.0.0-20250417130911-3f050ff8c56d // indirect
+	github.com/mewpkg/term v0.0.0-20241026122259-37a80af23985 // indirect
 	golang.org/x/image v0.40.0 // indirect
 	golang.org/x/sync v0.20.0 // indirect
 	golang.org/x/sys v0.47.0 // indirect

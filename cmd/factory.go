@@ -34,6 +34,8 @@ func newFloat64Reader(path string) (reader.Float64Reader, error) {
 		}
 		float64Reader := reader.NewPCMSourceFloat64Reader(pcmSource)
 		return float64Reader, nil
+	case ".flac":
+		return reader.FLACFloat64ReaderFromFile(path)
 	default:
 		return nil, fmt.Errorf("unsupported file extension: %s", ext)
 	}
