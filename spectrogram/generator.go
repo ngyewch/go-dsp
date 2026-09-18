@@ -8,10 +8,13 @@ type Generator struct {
 	*analyzer.Collector
 }
 
+func NewAnalyzer(sampleRate float64, nfft int, step int, windowFunc func(int) []float64) *analyzer.Analyzer {
+	return analyzer.New(sampleRate, nfft, step, windowFunc, magnitudeToDbFunc(nfft))
+}
+
 func NewGenerator(sampleRate float64, nfft int, step int, windowFunc func(int) []float64) *Generator {
-	analyzerInstance := analyzer.New(sampleRate, nfft, step, windowFunc, magnitudeToDbFunc(nfft))
 	return &Generator{
-		Collector: analyzer.NewCollector(analyzerInstance),
+		Collector: analyzer.NewCollector(NewAnalyzer(sampleRate, nfft, step, windowFunc)),
 	}
 }
 

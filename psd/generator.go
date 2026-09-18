@@ -12,8 +12,11 @@ type Generator struct {
 	norm float64
 }
 
+func NewAnalyzer(sampleRate float64, nfft int, step int, windowFunc func(int) []float64) *analyzer.Analyzer {
+	return analyzer.New(sampleRate, nfft, step, windowFunc, toPowerFunc())
+}
+
 func NewGenerator(sampleRate float64, nfft int, step int, windowFunc func(int) []float64) *Generator {
-	analyzerInstance := analyzer.New(sampleRate, nfft, step, windowFunc, toPowerFunc())
 	var norm float64
 	if windowFunc != nil {
 		w := windowFunc(nfft)
@@ -24,7 +27,7 @@ func NewGenerator(sampleRate float64, nfft int, step int, windowFunc func(int) [
 		norm = 1
 	}
 	return &Generator{
-		Collector: analyzer.NewCollector(analyzerInstance),
+		Collector: analyzer.NewCollector(NewAnalyzer(sampleRate, nfft, step, windowFunc)),
 
 		norm: norm,
 	}
