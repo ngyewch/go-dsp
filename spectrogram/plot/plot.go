@@ -1,19 +1,13 @@
 package plot
 
 import (
-	"fmt"
 	"math"
-	"os"
-	"path/filepath"
 
 	"github.com/ngyewch/go-dsp/spectrogram"
 	"go-hep.org/x/hep/hplot"
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/palette"
 	"gonum.org/v1/plot/plotter"
-	"gonum.org/v1/plot/vg"
-	"gonum.org/v1/plot/vg/draw"
-	"gonum.org/v1/plot/vg/vgimg"
 )
 
 func ToGridXYZ(spec *spectrogram.Data) *GridXYZ {
@@ -67,39 +61,4 @@ func ToPlot(gridXYZ *GridXYZ, pal palette.Palette) *plot.Plot {
 	p.Add(heatmap)
 
 	return p
-}
-
-func SavePlotToFile(path string, p *plot.Plot, width int, height int) error {
-	ext := filepath.Ext(path)
-	switch ext {
-	case ".png":
-	default:
-		return fmt.Errorf("unsupported file type: %s", ext)
-	}
-
-	f, err := os.Create(path)
-	if err != nil {
-		return err
-	}
-	defer func(f *os.File) {
-		_ = f.Close()
-	}(f)
-
-	img := vgimg.New(vg.Length(width)*vg.Inch/vg.Length(vgimg.DefaultDPI), vg.Length(height)*vg.Inch/vg.Length(vgimg.DefaultDPI))
-	dc := draw.New(img)
-	p.Draw(dc)
-
-	switch ext {
-	case ".png":
-		png := vgimg.PngCanvas{
-			Canvas: img,
-		}
-		_, err = png.WriteTo(f)
-		if err != nil {
-			return err
-		}
-		return nil
-	default:
-		return fmt.Errorf("unsupported file type: %s", ext)
-	}
 }

@@ -5,32 +5,21 @@ import (
 )
 
 type Generator struct {
-	sampleRate   float64
-	nfft         int
-	step         int
-	analyzer     *analyzer.Analyzer
-	analyzedData []*analyzer.AnalyzedData
+	*analyzer.Collector
 }
 
 func NewGenerator(sampleRate float64, nfft int, step int, windowFunc func(int) []float64) *Generator {
-	analyzerInstance := analyzer.New(sampleRate, nfft, step, windowFunc)
+	analyzerInstance := analyzer.New(sampleRate, nfft, step, windowFunc, magnitudeToDbFunc(nfft))
 	return &Generator{
-		sampleRate: sampleRate,
-		nfft:       nfft,
-		step:       step,
-		analyzer:   analyzerInstance,
+		Collector: analyzer.NewCollector(analyzerInstance),
 	}
-}
-
-func (generator *Generator) Append(samples []float64) {
-	generator.analyzedData = append(generator.analyzedData, generator.analyzer.Append(samples)...)
 }
 
 func (generator *Generator) ToSpectrogram() *Data {
 	return &Data{
-		SampleRate:   generator.sampleRate,
-		Nfft:         generator.nfft,
-		Step:         generator.step,
-		AnalyzedData: generator.analyzedData,
+		SampleRate:   generator.Analyzer().SampleRate(),
+		Nfft:         generator.Analyzer().NFFT(),
+		Step:         generator.Analyzer().Step(),
+		AnalyzedData: generator.AnalyzedData(),
 	}
 }

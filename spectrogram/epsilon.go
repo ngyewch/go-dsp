@@ -1,4 +1,4 @@
-package analyzer
+package spectrogram
 
 import "math"
 

@@ -9,25 +9,37 @@ import (
 )
 
 type Analyzer struct {
-	sampleRate float64
-	nfft       int
-	step       int
-	windowFunc func(int) []float64
-	bSi        float64
-	buffer     []float64
-	samples    *genericbuffer.GenericBuffer[float64]
+	sampleRate  float64
+	nfft        int
+	step        int
+	windowFunc  func(int) []float64
+	processFunc func(v complex128) float64
+	buffer      []float64
+	samples     *genericbuffer.GenericBuffer[float64]
 }
 
-func New(sampleRate float64, nfft int, step int, windowFunc func(int) []float64) *Analyzer {
+func New(sampleRate float64, nfft int, step int, windowFunc func(int) []float64, processFunc func(v complex128) float64) *Analyzer {
 	return &Analyzer{
-		sampleRate: sampleRate,
-		nfft:       nfft,
-		step:       step,
-		windowFunc: windowFunc,
-		bSi:        2 / float64(nfft),
-		buffer:     make([]float64, nfft),
-		samples:    genericbuffer.NewGenericBuffer[float64](),
+		sampleRate:  sampleRate,
+		nfft:        nfft,
+		step:        step,
+		windowFunc:  windowFunc,
+		processFunc: processFunc,
+		buffer:      make([]float64, nfft),
+		samples:     genericbuffer.NewGenericBuffer[float64](),
 	}
+}
+
+func (analyzer *Analyzer) SampleRate() float64 {
+	return analyzer.sampleRate
+}
+
+func (analyzer *Analyzer) NFFT() int {
+	return analyzer.nfft
+}
+
+func (analyzer *Analyzer) Step() int {
+	return analyzer.step
 }
 
 func (analyzer *Analyzer) Append(samples []float64) []*AnalyzedData {
@@ -51,10 +63,8 @@ func (analyzer *Analyzer) Append(samples []float64) []*AnalyzedData {
 		fftResult := fft.FFTReal(analyzer.buffer)
 		frequencyData := make([]float64, (analyzer.nfft/2)+1)
 		for i := 0; i < (analyzer.nfft/2)+1; i++ {
-			val := fftResult[i]
-			mag := (math.Sqrt((real(val)*real(val))+(imag(val)*imag(val))) * analyzer.bSi) + epsilon
-			dB := 20 * math.Log10(mag)
-			frequencyData[i] = dB
+			v := fftResult[i]
+			frequencyData[i] = analyzer.processFunc(v)
 		}
 		analyzedDataArray = append(analyzedDataArray, &AnalyzedData{
 			SampleRate:    analyzer.sampleRate,

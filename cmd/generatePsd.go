@@ -6,17 +6,16 @@ import (
 	"io"
 
 	"github.com/ngyewch/go-dsp/plotutils"
+	"github.com/ngyewch/go-dsp/psd"
+	psdPlot "github.com/ngyewch/go-dsp/psd/plot"
 	"github.com/ngyewch/go-dsp/reader"
-	"github.com/ngyewch/go-dsp/spectrogram"
-	"github.com/ngyewch/go-dsp/spectrogram/plot"
 	"github.com/urfave/cli/v3"
 )
 
-func doGenerateSpectrogram(ctx context.Context, cmd *cli.Command) error {
+func doGeneratePsd(ctx context.Context, cmd *cli.Command) error {
 	inputFile := cmd.StringArg(inputFileArg.Name)
 	outputFile := cmd.StringArg(outputFileArg.Name)
 	fftSize := cmd.Int(fftSizeFlag.Name)
-	dbRange := cmd.Float64(dbRangeFlag.Name)
 	plotWidth := cmd.Int(plotWidthFlag.Name)
 	plotHeight := cmd.Int(plotHeightFlag.Name)
 
@@ -41,7 +40,10 @@ func doGenerateSpectrogram(ctx context.Context, cmd *cli.Command) error {
 		_ = float64Reader.Close()
 	}(float64Reader)
 
-	generator := spectrogram.NewGenerator(float64Reader.SampleRate(), fftSize, step, windowFunc)
+	generators := make([]*psd.Generator, float64Reader.NumChannels())
+	for i := range float64Reader.NumChannels() {
+		generators[i] = psd.NewGenerator(float64Reader.SampleRate(), fftSize, step, windowFunc)
+	}
 
 	for {
 		channelSamples, err := float64Reader.ReadFloat64Samples(4096)
@@ -51,15 +53,23 @@ func doGenerateSpectrogram(ctx context.Context, cmd *cli.Command) error {
 			}
 			return err
 		}
-		generator.Append(channelSamples[0])
+		for i := range float64Reader.NumChannels() {
+			generators[i].Append(channelSamples[i])
+		}
 	}
 
-	spec := generator.ToSpectrogram()
-	gridXYZ := plot.ToGridXYZ(spec)
-	if dbRange > 0 {
-		gridXYZ.MinValue = gridXYZ.MaxValue - dbRange
+	psds := make([]*psd.Data, float64Reader.NumChannels())
+	for i := range float64Reader.NumChannels() {
+		psds[i] = generators[i].ToPsd()
 	}
-	p := plot.ToPlot(gridXYZ, nil)
+
+	p, err := psdPlot.ToPlot(psds, nil, func(i int) string {
+		return fmt.Sprintf("Channel %d", i)
+	})
+	if err != nil {
+		return err
+	}
+
 	err = plotutils.SavePlotToFile(p, outputFile, plotWidth, plotHeight)
 	if err != nil {
 		return err

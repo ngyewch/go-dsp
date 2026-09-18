@@ -107,6 +107,22 @@ var (
 							plotHeightFlag,
 						},
 					},
+					{
+						Name:   "psd",
+						Usage:  "psd",
+						Action: doGeneratePsd,
+						Arguments: []cli.Argument{
+							inputFileArg,
+							outputFileArg,
+						},
+						Flags: []cli.Flag{
+							fftSizeFlag,
+							overlapFlag,
+							windowFunctionFlag,
+							plotWidthFlag,
+							plotHeightFlag,
+						},
+					},
 				},
 			},
 		},

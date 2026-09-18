@@ -4,6 +4,11 @@ tasks:
   build:
     desc: Build
     cmds:
+      - goreleaser build --snapshot --clean
+
+  build-single:
+    desc: Build single
+    cmds:
       - goreleaser build --single-target --snapshot --clean --output dist/go-dsp
 
   outdated:
