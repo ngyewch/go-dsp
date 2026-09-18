@@ -4,42 +4,11 @@ import (
 	"context"
 	"fmt"
 	"math"
-	"path/filepath"
 	"strings"
 
 	"github.com/madelynnblue/go-dsp/window"
-	"github.com/ngyewch/go-dsp/reader"
-	"github.com/ngyewch/go-pcm"
-	"github.com/ngyewch/go-pcm/wav"
 	"github.com/urfave/cli/v3"
 )
-
-func newPCMSource(path string) (pcm.Source, error) {
-	ext := filepath.Ext(path)
-	switch ext {
-	case ".wav":
-		return wav.NewReader(path)
-	default:
-		return nil, fmt.Errorf("unsupported file extension: %s", ext)
-	}
-}
-
-func newFloat64Reader(path string) (reader.Float64Reader, error) {
-	ext := filepath.Ext(path)
-	switch ext {
-	case ".wav":
-		pcmSource, err := newPCMSource(path)
-		if err != nil {
-			return nil, err
-		}
-		float64Reader := reader.NewPCMSourceFloat64Reader(pcmSource)
-		return float64Reader, nil
-	case ".flac":
-		return reader.FLACFloat64ReaderFromFile(path)
-	default:
-		return nil, fmt.Errorf("unsupported file extension: %s", ext)
-	}
-}
 
 func getStep(ctx context.Context, cmd *cli.Command) int {
 	fftSize := cmd.Int(fftSizeFlag.Name)

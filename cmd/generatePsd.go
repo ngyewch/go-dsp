@@ -32,7 +32,7 @@ func doGeneratePsd(ctx context.Context, cmd *cli.Command) error {
 		outputFile = inputFile + ".png"
 	}
 
-	float64Reader, err := newFloat64Reader(inputFile)
+	float64Reader, err := reader.Float64ReaderFromFile(inputFile)
 	if err != nil {
 		return err
 	}
