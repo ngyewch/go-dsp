@@ -8,10 +8,10 @@ import (
 	"github.com/ngyewch/go-dsp/spectrogram"
 )
 
-func Convert(inputFile string, fftSize int, step int, windowFunc func(int) []float64, outputFile string, dbRange float64, plotWidth int, plotHeight int) error {
+func ConvertFileToSpectrogram(inputFile string, fftSize int, step int, windowFunc func(int) []float64) (*spectrogram.Data, error) {
 	float64Reader, err := reader.Float64ReaderFromFile(inputFile)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer func(float64Reader reader.Float64Reader) {
 		_ = float64Reader.Close()
@@ -25,12 +25,17 @@ func Convert(inputFile string, fftSize int, step int, windowFunc func(int) []flo
 			if err == io.EOF {
 				break
 			}
-			return err
+			return nil, err
 		}
 		generator.Append(channelSamples[0])
 	}
 
-	spec := generator.ToSpectrogram()
+	return generator.ToSpectrogram(), nil
+}
+
+func Convert(inputFile string, fftSize int, step int, windowFunc func(int) []float64, outputFile string, dbRange float64, plotWidth int, plotHeight int) error {
+	spec, err := ConvertFileToSpectrogram(inputFile, fftSize, step, windowFunc)
+
 	gridXYZ := ToGridXYZ(spec)
 	if dbRange > 0 {
 		gridXYZ.MinValue = gridXYZ.MaxValue - dbRange
