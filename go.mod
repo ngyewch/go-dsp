@@ -8,9 +8,9 @@ require (
 	github.com/madelynnblue/go-dsp v1.0.0
 	github.com/mewkiz/flac v1.0.14
 	github.com/ngyewch/go-genericbuffer v0.1.0
-	github.com/ngyewch/go-pcm v0.3.0
+	github.com/ngyewch/go-pcm v0.4.0
 	github.com/phsym/console-slog v0.3.1
-	github.com/urfave/cli/v3 v3.12.0
+	github.com/urfave/cli/v3 v3.14.0
 	go-hep.org/x/hep v0.40.0
 	gonum.org/v1/plot v0.17.0
 )
